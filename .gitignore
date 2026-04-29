@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Environment / secrets — NEVER commit real credentials ###
+.env
+.env.local
+.env.*.local
+!.env.example
+
+### Local Spring Boot config overrides ###
+src/main/resources/application-local.yml
+src/main/resources/application-local.properties

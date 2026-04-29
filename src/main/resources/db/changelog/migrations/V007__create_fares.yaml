@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: V007-create-fares
+      author: system
+      changes:
+        - createTable:
+            tableName: fares
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: flight_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_fares_flight
+                    references: flights(id)
+              - column:
+                  name: tenant_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fare_class
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(15, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: fares
+            indexName: idx_fares_flight_id
+            columns:
+              - column:
+                  name: flight_id

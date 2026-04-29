@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: flight-booking-service
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    show-sql: false
+    open-in-view: false
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000   # 5 minutes default TTL (ms)
+
+  security:
+    user:
+      name: disabled
+      password: disabled
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  show-actuator: false
+
+logging:
+  level:
+    root: INFO
+    com.emekachukwulobe.flightbookingservice: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+app:
+  booking:
+    expiry-minutes: 30       # TTL for PENDING bookings before auto-cancel
+  scheduler:
+    booking-expiry-cron: "0 * * * * *"   # every minute
+    cache-refresh-cron: "0 0/15 * * * *" # every 15 minutes
+  data-initializer:
+    default-tenant-code: ${DEFAULT_TENANT_CODE:DEFAULT}
+    default-tenant-name: ${DEFAULT_TENANT_NAME:Default Airline}
+    default-admin-username: ${DEFAULT_ADMIN_USERNAME:admin}
+    default-admin-password: ${DEFAULT_ADMIN_PASSWORD:ChangeMe123!}

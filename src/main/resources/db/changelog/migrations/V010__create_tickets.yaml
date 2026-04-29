@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: V010-create-tickets
+      author: system
+      changes:
+        - createTable:
+            tableName: tickets
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: booking_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tickets_booking
+                    references: bookings(id)
+              - column:
+                  name: passenger_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tickets_passenger
+                    references: passengers(id)
+              - column:
+                  name: fare_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tickets_fare
+                    references: fares(id)
+              - column:
+                  name: tenant_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ticket_number
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: ISSUED
+                  constraints:
+                    nullable: false
+              - column:
+                  name: issued_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: tickets
+            indexName: idx_tickets_booking_id
+            columns:
+              - column:
+                  name: booking_id
+        - createIndex:
+            tableName: tickets
+            indexName: idx_tickets_passenger_id
+            columns:
+              - column:
+                  name: passenger_id
