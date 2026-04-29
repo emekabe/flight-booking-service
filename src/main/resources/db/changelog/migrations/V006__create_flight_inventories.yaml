@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: V006-create-flight-inventories
-      author: system
+      author: emekachukwulobe
       changes:
         - createTable:
             tableName: flight_inventories

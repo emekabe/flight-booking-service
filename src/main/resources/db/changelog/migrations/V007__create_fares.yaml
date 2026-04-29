@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: V007-create-fares
-      author: system
+      author: emekachukwulobe
       changes:
         - createTable:
             tableName: fares

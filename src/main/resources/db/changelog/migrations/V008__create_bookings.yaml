@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: V008-create-bookings
-      author: system
+      author: emekachukwulobe
       changes:
         - createTable:
             tableName: bookings

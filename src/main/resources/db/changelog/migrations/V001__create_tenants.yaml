@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: V001-create-tenants
-      author: system
+      author: emekachukwulobe
       changes:
         - createTable:
             tableName: tenants

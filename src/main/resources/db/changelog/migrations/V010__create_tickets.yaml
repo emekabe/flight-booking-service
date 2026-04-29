@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: V010-create-tickets
-      author: system
+      author: emekachukwulobe
       changes:
         - createTable:
             tableName: tickets

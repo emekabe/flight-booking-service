@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: V003-create-users
-      author: system
+      author: emekachukwulobe
       changes:
         - createTable:
             tableName: users
