@@ -36,7 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-### Environment / secrets — NEVER commit real credentials ###
+### Environment / secrets ###
 .env
 .env.local
 .env.*.local
