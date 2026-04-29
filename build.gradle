@@ -43,6 +43,7 @@ dependencies {
 
     // Liquibase — schema migrations
     implementation 'org.liquibase:liquibase-core'
+    implementation 'org.yaml:snakeyaml' // Required for YAML changelogs
 
     // PostgreSQL JDBC driver
     runtimeOnly 'org.postgresql:postgresql'
@@ -57,6 +58,7 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     // Ensures Lombok runs before MapStruct during annotation processing
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
