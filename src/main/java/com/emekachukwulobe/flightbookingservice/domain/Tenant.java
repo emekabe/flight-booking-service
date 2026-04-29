@@ -30,6 +30,7 @@ public class Tenant extends BaseEntity {
     @Column(name = "code", nullable = false, unique = true)
     private String code;
 
+    @Builder.Default
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
