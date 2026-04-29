@@ -7,6 +7,7 @@ import com.emekachukwulobe.flightbookingservice.dto.request.CreateFlightRequest;
 import com.emekachukwulobe.flightbookingservice.dto.request.SearchFlightRequest;
 import com.emekachukwulobe.flightbookingservice.dto.request.UpdateFlightInventoryRequest;
 import com.emekachukwulobe.flightbookingservice.dto.response.FlightResponse;
+import com.emekachukwulobe.flightbookingservice.dto.response.PagedResponse;
 import com.emekachukwulobe.flightbookingservice.exception.DuplicateResourceException;
 import com.emekachukwulobe.flightbookingservice.exception.FlightNotFoundException;
 import com.emekachukwulobe.flightbookingservice.mapper.FlightMapper;
@@ -37,7 +38,7 @@ public class FlightServiceImpl implements FlightService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "flights", key = "#tenantId + ':' + #request.origin + ':' + #request.destination + ':' + #request.departureDate + ':' + #request.fareClass + ':' + #pageable.pageNumber")
-    public Page<FlightResponse> searchFlights(SearchFlightRequest request, UUID tenantId, Pageable pageable) {
+    public PagedResponse<FlightResponse> searchFlights(SearchFlightRequest request, UUID tenantId, Pageable pageable) {
         var spec = FlightSpecification.buildSearchSpec(
             tenantId,
             request.getOrigin(),
@@ -45,7 +46,8 @@ public class FlightServiceImpl implements FlightService {
             request.getDepartureDate(),
             request.getFareClass()
         );
-        return flightRepository.findAll(spec, pageable).map(flightMapper::toResponse);
+        Page<FlightResponse> page = flightRepository.findAll(spec, pageable).map(flightMapper::toResponse);
+        return PagedResponse.from(page);
     }
 
     @Override

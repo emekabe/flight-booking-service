@@ -5,12 +5,14 @@ import com.emekachukwulobe.flightbookingservice.dto.request.SearchFlightRequest;
 import com.emekachukwulobe.flightbookingservice.dto.request.UpdateFlightInventoryRequest;
 import com.emekachukwulobe.flightbookingservice.dto.response.ApiResponse;
 import com.emekachukwulobe.flightbookingservice.dto.response.FlightResponse;
+import com.emekachukwulobe.flightbookingservice.dto.response.PagedResponse;
 import com.emekachukwulobe.flightbookingservice.security.SecurityUtils;
 import com.emekachukwulobe.flightbookingservice.service.FlightService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -37,11 +39,11 @@ public class FlightController {
 
     @GetMapping
     @Operation(summary = "Search flights", description = "Search available flights with optional filters. Results are cached in Redis.")
-    public ResponseEntity<ApiResponse<Page<FlightResponse>>> searchFlights(
-            SearchFlightRequest request,
-            @PageableDefault(size = 20, sort = "departureTime") Pageable pageable) {
+    public ResponseEntity<ApiResponse<PagedResponse<FlightResponse>>> searchFlights(
+            @ParameterObject SearchFlightRequest request,
+            @ParameterObject @PageableDefault(size = 20, sort = "departureTime") Pageable pageable) {
         UUID tenantId = SecurityUtils.getCurrentTenantId();
-        Page<FlightResponse> results = flightService.searchFlights(request, tenantId, pageable);
+        PagedResponse<FlightResponse> results = flightService.searchFlights(request, tenantId, pageable);
         return ResponseEntity.ok(ApiResponse.success(results));
     }
 
