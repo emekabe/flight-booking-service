@@ -69,6 +69,10 @@ logging:
     root: INFO
     com.emekachukwulobe.flightbookingservice: DEBUG
 
+liquibase:
+  change-log: ${LIQUIBASE_CHANGELOG:classpath:db/changelog/db.changelog-master.yaml}
+  should-run: ${LIQUIBASE_SHOULD_RUN:true}
+
 app:
   booking:
     expiry-minutes: 30       # TTL for PENDING bookings before auto-cancel
