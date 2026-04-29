@@ -1,5 +1,6 @@
-package com.emekachukwulobe.flightbookingservice.config;
+package com.emekachukwulobe.flightbookingservice.startup;
 
+import com.emekachukwulobe.flightbookingservice.config.AppProperties;
 import com.emekachukwulobe.flightbookingservice.domain.PasswordHistory;
 import com.emekachukwulobe.flightbookingservice.domain.User;
 import com.emekachukwulobe.flightbookingservice.domain.enums.UserRole;

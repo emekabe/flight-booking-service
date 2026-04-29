@@ -1,4 +1,4 @@
-package com.emekachukwulobe.flightbookingservice.config;
+package com.emekachukwulobe.flightbookingservice.scheduler;
 
 import com.emekachukwulobe.flightbookingservice.service.BookingService;
 import lombok.RequiredArgsConstructor;
