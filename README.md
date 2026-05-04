@@ -5,15 +5,17 @@ A production-grade, multi-tenant flight booking and management backend system. D
 ## 🚀 Key Features
 
 *   **Multi-Tenancy**: Data isolation using discriminator columns (`tenant_id`). Tenant context is securely resolved and propagated via Spring Security's `SecurityContext` and a thread-local `TenantContext`.
-*   **Flight & Inventory Management**: Create and manage flights. Seat reservations are protected against concurrent bookings using **Optimistic Locking** (`@Version`).
-*   **Booking Engine**: Complete PNR (Passenger Name Record) generation. Bookings expire automatically via a scheduled TTL job if not paid.
-*   **Ticketing**: Automatic issuance of unique tickets for each passenger upon booking confirmation.
+*   **Aircraft & Seat Layout**: Administrators can define aircraft with specific seat configurations supporting both AIRLINE (e.g., 12A) and SEQUENTIAL (e.g., 1, 2) naming formats. Assigning an aircraft to a flight auto-generates the physical seat map.
+*   **Flight, Fare & Inventory Management**: Create and manage flights with multi-class fares. Seat reservations are protected against concurrent bookings using **Optimistic Locking** (`@Version`).
+*   **Booking Engine with Seat Selection**: Complete PNR (Passenger Name Record) generation. Passengers can choose preferred seats during booking, which are validated against their fare's cabin class. Bookings expire automatically via a scheduled TTL job if not paid.
+*   **Ticketing**: Automatic issuance of unique tickets and boarding passes (linking the passenger to their specific seat) upon booking confirmation.
+*   **Async Notification System**: Event-driven, asynchronous notification service. Sends automated booking confirmations and ticket details to passengers via Email (SMTP) and SMS (Twilio). Configurations are defined per-tenant.
 *   **Payments Integration**: Extensible payment provider abstraction with support for Provider Webhooks (idempotent), Cash, and Bank Transfer workflows.
-*   **Tenant Configurations (EAV)**: Entity-Attribute-Value pattern for tenant-specific settings.
+*   **Tenant Configurations (EAV)**: Entity-Attribute-Value pattern for tenant-specific settings (e.g., SMTP details, Twilio credentials, feature toggles).
 *   **Advanced Security**: 
-    *   Stateless HTTP Basic Authentication.
+    *   Stateless HTTP Basic Authentication with a dedicated `POST /api/v1/auth/login` endpoint returning credentials via the `Authorization` header.
     *   Configurable **Password History Policy** per tenant (prevents reuse of the last *N* passwords).
-*   **Caching**: High-performance flight search caching using Redis (`@Cacheable`, `@CacheEvict`).
+*   **Caching & Schedulers**: High-performance flight search caching using Redis (`@Cacheable`, `@CacheEvict`). A dedicated background scheduler automatically evicts stale flight caches.
 *   **Database Migrations**: Version-controlled schema management using Liquibase.
 
 ## 🛠️ Technology Stack
@@ -24,8 +26,10 @@ A production-grade, multi-tenant flight booking and management backend system. D
     *   Spring Data JPA (Hibernate 6)
     *   Spring Security
     *   Spring Cache
+    *   Spring Mail (SMTP integration)
 *   **PostgreSQL**: Primary relational database.
 *   **Redis**: Distributed caching layer.
+*   **Twilio SDK**: For SMS notifications.
 *   **Liquibase**: Database schema versioning and migrations.
 *   **MapStruct**: High-performance, type-safe DTO mapping.
 *   **Lombok**: Boilerplate code reduction.
@@ -118,19 +122,20 @@ The API is fully documented using OpenAPI 3. Once the application is running (de
 *   **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 *   **OpenAPI JSON**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 
-To authenticate in Swagger UI, click the **Authorize** button and enter the credentials of the bootstrapped Admin user.
+To authenticate in Swagger UI, click the **Authorize** button and enter the credentials of the bootstrapped Admin user. Alternatively, you can use the `/api/v1/auth/login` endpoint to retrieve a token.
 
 ## 🏗️ Architecture Overview
 
 The project follows a clean, layered architecture:
 
 *   `controller`: REST API endpoints, DTO validation.
-*   `service`: Core business logic, transaction boundaries (`@Transactional`), caching rules.
+*   `service`: Core business logic, transaction boundaries (`@Transactional`), caching rules, and asynchronous workflows.
 *   `repository`: Spring Data JPA interfaces and dynamic `Specification` builders.
 *   `domain`: JPA Entities, Enums, and rich domain methods (preventing anemic models).
 *   `dto`: Request/Response data transfer objects.
 *   `mapper`: MapStruct interfaces for Entity-DTO conversion.
 *   `security`: Authentication filters, UserDetails wrappers, and the `TenantContext` lifecycle.
+*   `scheduler`: Background cron jobs for cache eviction and booking expiration.
 *   `integration`: Interfaces and stubs for external systems (e.g., Payment Gateways).
 *   `exception`: Custom domain exceptions and the `@RestControllerAdvice` global handler.
-*   `config`: Spring configuration classes (Redis, OpenAPI, Security, Schedulers).
+*   `config`: Spring configuration classes (Redis, OpenAPI, Security, Async pools).
