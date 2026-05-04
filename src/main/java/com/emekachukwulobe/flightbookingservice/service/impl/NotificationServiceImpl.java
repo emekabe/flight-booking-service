@@ -108,21 +108,25 @@ public class NotificationServiceImpl implements NotificationService {
 
             if (smsEnabled && passenger.getPhoneNumber() != null) {
                 try {
-                    String seatInfo = ticket.getSeatNumber() != null ? " | Seat: " + ticket.getSeatNumber() : "";
-                    String sms = "Ticket: %s%s | Ref: %s | %s %s→%s %s. Present at airport."
-                        .formatted(
-                            ticket.getTicketNumber(), seatInfo,
-                            booking.getBookingReference(),
-                            booking.getFlight().getFlightNumber(),
-                            booking.getFlight().getOrigin(),
-                            booking.getFlight().getDestination(),
-                            booking.getFlight().getDepartureTime().toString());
+                    String sms = composeSmsMessage(booking, ticket);
                     twilioSmsService.sendSms(tenantId, passenger.getPhoneNumber(), sms);
                 } catch (Exception e) {
                     log.error("Failed to send ticket SMS to {}: {}", passenger.getPhoneNumber(), e.getMessage());
                 }
             }
         }
+    }
+
+    private static String composeSmsMessage(Booking booking, Ticket ticket) {
+        String seatInfo = ticket.getSeatNumber() != null ? " | Seat: " + ticket.getSeatNumber() : "";
+        return "Ticket: %s%s | Ref: %s | %s %s→%s %s. Present at airport."
+            .formatted(
+                ticket.getTicketNumber(), seatInfo,
+                booking.getBookingReference(),
+                booking.getFlight().getFlightNumber(),
+                booking.getFlight().getOrigin(),
+                booking.getFlight().getDestination(),
+                booking.getFlight().getDepartureTime().toString());
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
