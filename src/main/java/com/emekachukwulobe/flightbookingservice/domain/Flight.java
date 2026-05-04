@@ -35,6 +35,11 @@ public class Flight extends BaseEntity {
     @JoinColumn(name = "tenant_id", nullable = false)
     private Tenant tenant;
 
+    /** Assigned aircraft — null until aircraft is allocated to the flight. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aircraft_id")
+    private Aircraft aircraft;
+
     @Column(name = "flight_number", nullable = false, length = 20)
     private String flightNumber;
 
@@ -63,4 +68,9 @@ public class Flight extends BaseEntity {
     @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Builder.Default
     private List<Fare> fares = new ArrayList<>();
+
+    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Builder.Default
+    private List<Seat> seats = new ArrayList<>();
 }
+

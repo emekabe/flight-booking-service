@@ -32,4 +32,13 @@ public class PassengerRequest {
     private String passportNumber;
 
     private LocalDate dateOfBirth;
+
+    /** Optional E.164 phone number for SMS notifications, e.g. +2348012345678. */
+    @Size(max = 20)
+    private String phoneNumber;
+
+    /** Optional: preferred seat number (e.g. "12A" or "5"). Auto-assigned if omitted. */
+    @Size(max = 10)
+    private String preferredSeatNumber;
 }
+

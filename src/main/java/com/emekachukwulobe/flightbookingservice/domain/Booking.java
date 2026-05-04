@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -72,4 +73,10 @@ public class Booking extends BaseEntity {
     public boolean isCancellable() {
         return status == BookingStatus.PENDING || status == BookingStatus.CONFIRMED;
     }
+
+    /** Transient: carries seat assignments from createBooking → issueTickets within the same TX. */
+    @Transient
+    @Builder.Default
+    private List<Seat> reservedSeats = new ArrayList<>();
 }
+

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: V017-add-phone-to-passengers
+      author: emekachukwulobe
+      changes:
+        - addColumn:
+            tableName: passengers
+            columns:
+              - column:
+                  name: phone_number
+                  type: VARCHAR(20)

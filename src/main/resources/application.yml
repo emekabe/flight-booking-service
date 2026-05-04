@@ -50,6 +50,14 @@ spring:
       name: disabled
       password: disabled
 
+  task:
+    execution:
+      pool:
+        core-size: 4
+        max-size: 10
+        queue-capacity: 100
+      thread-name-prefix: notification-
+
 server:
   port: ${PORT:8080}
   servlet:

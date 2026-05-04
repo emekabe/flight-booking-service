@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: V013-create-aircraft-seat-definitions
+      author: emekachukwulobe
+      changes:
+        - createTable:
+            tableName: aircraft_seat_definitions
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: aircraft_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_seat_def_aircraft
+                    references: aircraft(id)
+              - column:
+                  name: row_number
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: seat_position
+                  type: VARCHAR(5)
+              - column:
+                  name: cabin_class
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: aircraft_seat_definitions
+            indexName: idx_seat_def_aircraft_id
+            columns:
+              - column:
+                  name: aircraft_id

@@ -45,4 +45,8 @@ public class Passenger extends BaseEntity {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
 }
+

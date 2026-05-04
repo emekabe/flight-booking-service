@@ -19,9 +19,10 @@ repositories {
 }
 
 ext {
-    mapstructVersion    = '1.6.3'
-    springdocVersion    = '2.8.8'
+    mapstructVersion      = '1.6.3'
+    springdocVersion      = '2.8.8'
     testcontainersVersion = '1.20.4'
+    twilioVersion         = '10.6.7'
 }
 
 dependencies {
@@ -40,6 +41,12 @@ dependencies {
     // Cache abstraction + Redis
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Twilio SMS SDK
+    implementation "com.twilio.sdk:twilio:${twilioVersion}"
 
     // Liquibase — schema migrations
     implementation 'org.liquibase:liquibase-core'

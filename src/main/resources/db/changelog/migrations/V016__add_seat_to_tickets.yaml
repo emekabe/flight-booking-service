@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: V016-add-seat-to-tickets
+      author: emekachukwulobe
+      changes:
+        - addColumn:
+            tableName: tickets
+            columns:
+              - column:
+                  name: seat_id
+                  type: UUID
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_tickets_seat
+                    references: seats(id)
+              - column:
+                  name: seat_number
+                  type: VARCHAR(10)

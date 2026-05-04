@@ -1,11 +1,13 @@
 package com.emekachukwulobe.flightbookingservice.controller;
 
 import com.emekachukwulobe.flightbookingservice.dto.request.CreateFlightRequest;
+import com.emekachukwulobe.flightbookingservice.dto.request.FareRequest;
 import com.emekachukwulobe.flightbookingservice.dto.request.SearchFlightRequest;
 import com.emekachukwulobe.flightbookingservice.dto.request.UpdateFlightInventoryRequest;
 import com.emekachukwulobe.flightbookingservice.dto.response.ApiResponse;
 import com.emekachukwulobe.flightbookingservice.dto.response.FlightResponse;
 import com.emekachukwulobe.flightbookingservice.dto.response.PagedResponse;
+import com.emekachukwulobe.flightbookingservice.dto.response.SeatResponse;
 import com.emekachukwulobe.flightbookingservice.security.SecurityUtils;
 import com.emekachukwulobe.flightbookingservice.service.FlightService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -38,7 +40,7 @@ public class FlightController {
     private final FlightService flightService;
 
     @GetMapping
-    @Operation(summary = "Search flights", description = "Search available flights with optional filters. Results are cached in Redis.")
+    @Operation(summary = "Search flights", description = "Search available flights with optional filters. Returns all tenant flights when no filter is provided. Results are cached in Redis.")
     public ResponseEntity<ApiResponse<PagedResponse<FlightResponse>>> searchFlights(
             @ParameterObject SearchFlightRequest request,
             @ParameterObject @PageableDefault(size = 20, sort = "departureTime") Pageable pageable) {
@@ -49,7 +51,7 @@ public class FlightController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Create flight", description = "Creates a new flight. Inventory defaults to 0 seats — call PUT /{id}/inventory to set capacity. ADMIN only.")
+    @Operation(summary = "Create flight", description = "Creates a new flight. Optionally include fares and an aircraftId to auto-generate seats. ADMIN only.")
     public ResponseEntity<ApiResponse<FlightResponse>> createFlight(
             @Valid @RequestBody CreateFlightRequest request) {
         UUID tenantId = SecurityUtils.getCurrentTenantId();
@@ -83,5 +85,32 @@ public class FlightController {
             @Valid @RequestBody UpdateFlightInventoryRequest request) {
         UUID tenantId = SecurityUtils.getCurrentTenantId();
         return ResponseEntity.ok(ApiResponse.success(flightService.updateInventory(id, request, tenantId)));
+    }
+
+    @PutMapping("/{id}/fares")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Set flight fares", description = "Replaces all fares for a flight. ADMIN only.")
+    public ResponseEntity<ApiResponse<FlightResponse>> upsertFares(
+            @PathVariable UUID id,
+            @Valid @RequestBody List<FareRequest> fares) {
+        UUID tenantId = SecurityUtils.getCurrentTenantId();
+        return ResponseEntity.ok(ApiResponse.success("Fares updated successfully", flightService.upsertFares(id, fares, tenantId)));
+    }
+
+    @PutMapping("/{id}/aircraft/{aircraftId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Assign aircraft", description = "Assigns an aircraft to a flight and auto-generates seats from its layout. ADMIN only.")
+    public ResponseEntity<ApiResponse<FlightResponse>> assignAircraft(
+            @PathVariable UUID id,
+            @PathVariable UUID aircraftId) {
+        UUID tenantId = SecurityUtils.getCurrentTenantId();
+        return ResponseEntity.ok(ApiResponse.success("Aircraft assigned successfully", flightService.assignAircraft(id, aircraftId, tenantId)));
+    }
+
+    @GetMapping("/{id}/seats")
+    @Operation(summary = "Get flight seats", description = "Returns all seats for a flight including availability status.")
+    public ResponseEntity<ApiResponse<List<SeatResponse>>> getSeats(@PathVariable UUID id) {
+        UUID tenantId = SecurityUtils.getCurrentTenantId();
+        return ResponseEntity.ok(ApiResponse.success(flightService.getSeats(id, tenantId)));
     }
 }

@@ -39,11 +39,19 @@ public class Ticket extends BaseEntity {
     @JoinColumn(name = "fare_id", nullable = false)
     private Fare fare;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seat_id")
+    private Seat seat;
+
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
     @Column(name = "ticket_number", nullable = false, unique = true, length = 50)
     private String ticketNumber;
+
+    /** Seat number copied from the Seat entity for quick access without a join. */
+    @Column(name = "seat_number", length = 10)
+    private String seatNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
@@ -53,3 +61,4 @@ public class Ticket extends BaseEntity {
     @Column(name = "issued_at")
     private OffsetDateTime issuedAt;
 }
+

@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: V015-create-seats
+      author: emekachukwulobe
+      changes:
+        - createTable:
+            tableName: seats
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: flight_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_seats_flight
+                    references: flights(id)
+              - column:
+                  name: tenant_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: seat_number
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cabin_class
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: AVAILABLE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: seats
+            columnNames: flight_id, seat_number
+            constraintName: uq_seat_flight_number
+        - createIndex:
+            tableName: seats
+            indexName: idx_seats_flight_id
+            columns:
+              - column:
+                  name: flight_id
+        - createIndex:
+            tableName: seats
+            indexName: idx_seats_flight_status
+            columns:
+              - column:
+                  name: flight_id
+              - column:
+                  name: status

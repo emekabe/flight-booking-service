@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: V012-create-aircraft
+      author: emekachukwulobe
+      changes:
+        - createTable:
+            tableName: aircraft
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: tenant_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: registration_number
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: model
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: seat_naming_format
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: aircraft
+            columnNames: registration_number, tenant_id
+            constraintName: uq_aircraft_registration_tenant
+        - createIndex:
+            tableName: aircraft
+            indexName: idx_aircraft_tenant_id
+            columns:
+              - column:
+                  name: tenant_id

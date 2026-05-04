@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: V014-add-aircraft-to-flights
+      author: emekachukwulobe
+      changes:
+        - addColumn:
+            tableName: flights
+            columns:
+              - column:
+                  name: aircraft_id
+                  type: UUID
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_flights_aircraft
+                    references: aircraft(id)
+        - createIndex:
+            tableName: flights
+            indexName: idx_flights_aircraft_id
+            columns:
+              - column:
+                  name: aircraft_id

@@ -9,6 +9,7 @@ import com.emekachukwulobe.flightbookingservice.dto.response.BookingResponse;
 import com.emekachukwulobe.flightbookingservice.exception.*;
 import com.emekachukwulobe.flightbookingservice.mapper.BookingMapper;
 import com.emekachukwulobe.flightbookingservice.repository.*;
+import com.emekachukwulobe.flightbookingservice.service.NotificationService;
 import com.emekachukwulobe.flightbookingservice.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,14 +36,16 @@ import static org.mockito.Mockito.*;
 @DisplayName("BookingServiceImpl unit tests")
 class BookingServiceImplTest {
 
-    @Mock BookingRepository     bookingRepository;
-    @Mock FlightRepository      flightRepository;
+    @Mock BookingRepository         bookingRepository;
+    @Mock FlightRepository          flightRepository;
     @Mock FlightInventoryRepository inventoryRepository;
-    @Mock FareRepository        fareRepository;
-    @Mock UserRepository        userRepository;
-    @Mock TicketService         ticketService;
-    @Mock BookingMapper         bookingMapper;
-    @Mock AppProperties         appProperties;
+    @Mock FareRepository            fareRepository;
+    @Mock SeatRepository            seatRepository;
+    @Mock UserRepository            userRepository;
+    @Mock TicketService             ticketService;
+    @Mock NotificationService       notificationService;
+    @Mock BookingMapper             bookingMapper;
+    @Mock AppProperties             appProperties;
 
     @InjectMocks BookingServiceImpl bookingService;
 
@@ -108,6 +111,9 @@ class BookingServiceImplTest {
                 .thenReturn(Optional.of(inventory));
         when(inventoryRepository.save(any())).thenReturn(inventory);
         when(appProperties.getBooking()).thenReturn(bookingConfig);
+        // No aircraft assigned → seat map is empty → auto-assignment skipped
+        when(seatRepository.findAvailableByFlightIdAndCabinClass(eq(flightId), eq(FareClass.ECONOMY)))
+                .thenReturn(List.of());
         when(bookingRepository.save(any(Booking.class))).thenAnswer(inv -> {
             Booking b = inv.getArgument(0);
             ReflectionTestUtils.setField(b, "id", UUID.randomUUID());
@@ -116,6 +122,8 @@ class BookingServiceImplTest {
         BookingResponse expected = BookingResponse.builder().bookingReference("ABC123")
                 .status(BookingStatus.PENDING).build();
         when(bookingMapper.toResponse(any(Booking.class))).thenReturn(expected);
+        // Notification is async — no stub needed, but verify it's called
+        doNothing().when(notificationService).sendBookingConfirmation(any());
 
         BookingResponse result = bookingService.createBooking(validRequest(), tenantId, userId);
 
@@ -123,6 +131,7 @@ class BookingServiceImplTest {
         assertThat(inventory.getAvailableSeats()).isEqualTo(49); // 50 - 1
         verify(inventoryRepository).save(inventory);
         verify(bookingRepository).save(any(Booking.class));
+        verify(notificationService).sendBookingConfirmation(any(Booking.class));
     }
 
     @Test
@@ -176,11 +185,13 @@ class BookingServiceImplTest {
                 .thenReturn(Optional.of(booking));
         when(bookingRepository.save(any())).thenReturn(booking);
         when(bookingMapper.toResponse(any())).thenReturn(expected);
+        doNothing().when(notificationService).sendTicketDetails(any());
 
         BookingResponse result = bookingService.confirmBooking(ref, tenantId);
 
         assertThat(result.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
         verify(ticketService).issueTickets(booking);
+        verify(notificationService).sendTicketDetails(any(Booking.class));
     }
 
     @Test
@@ -209,6 +220,8 @@ class BookingServiceImplTest {
 
         when(bookingRepository.findByBookingReferenceAndTenantId(ref, tenantId))
                 .thenReturn(Optional.of(booking));
+        // No seat entities for this flight → seat release is skipped
+        when(seatRepository.findAllByFlightId(flightId)).thenReturn(List.of());
         when(inventoryRepository.findByFlightId(flightId)).thenReturn(Optional.of(inventory));
         when(inventoryRepository.save(any())).thenReturn(inventory);
         when(bookingRepository.save(any())).thenReturn(booking);
