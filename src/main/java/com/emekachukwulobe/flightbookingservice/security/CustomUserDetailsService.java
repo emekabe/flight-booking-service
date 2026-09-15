@@ -1,5 +1,6 @@
 package com.emekachukwulobe.flightbookingservice.security;
 
+import com.emekachukwulobe.flightbookingservice.domain.User;
 import com.emekachukwulobe.flightbookingservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,12 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-            .filter(user -> user.isActive())
-            .map(user -> {
-                // Eagerly initialize the tenant proxy while still inside the transaction
-                user.getTenant().getId();
-                return new TenantAwareUserDetails(user);
-            })
+            .filter(User::isActive)
+            .map(TenantAwareUserDetails::new)
             .orElseThrow(() -> new UsernameNotFoundException("User not found or inactive: " + username));
     }
 }
