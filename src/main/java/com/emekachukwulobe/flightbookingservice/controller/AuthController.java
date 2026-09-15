@@ -4,6 +4,7 @@ import com.emekachukwulobe.flightbookingservice.dto.request.LoginRequest;
 import com.emekachukwulobe.flightbookingservice.dto.response.ApiResponse;
 import com.emekachukwulobe.flightbookingservice.dto.response.LoginResponse;
 import com.emekachukwulobe.flightbookingservice.security.TenantAwareUserDetails;
+import com.emekachukwulobe.flightbookingservice.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ import java.util.Base64;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
     @PostMapping("/login")
     @Operation(
@@ -42,20 +44,15 @@ public class AuthController {
 
         TenantAwareUserDetails userDetails = (TenantAwareUserDetails) auth.getPrincipal();
 
+        LoginResponse body = authService.getLoginResponse(userDetails);
+
         String credentials = request.getUsername() + ":" + request.getPassword();
         String basicToken = "Basic " + Base64.getEncoder()
-            .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-
-        LoginResponse body = LoginResponse.builder()
-            .username(userDetails.getUsername())
-            .role(userDetails.getUser().getRole())
-            .userId(userDetails.getUserId())
-            .tenantId(userDetails.getTenantId())
-            .tenantCode(userDetails.getUser().getTenant().getCode())
-            .build();
+                .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()
             .header(HttpHeaders.AUTHORIZATION, basicToken)
             .body(ApiResponse.success("Login successful", body));
     }
+
 }

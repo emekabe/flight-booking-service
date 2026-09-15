@@ -16,13 +16,21 @@ import java.util.UUID;
 public class TenantAwareUserDetails implements UserDetails {
 
     private final User user;
+    private final UUID tenantId;
+    private final String tenantCode;
 
     public TenantAwareUserDetails(User user) {
         this.user = user;
+        this.tenantId = user.getTenant() != null ? user.getTenant().getId() : null;
+        this.tenantCode = user.getTenant() != null ? user.getTenant().getCode() : null;
     }
 
     public UUID getTenantId() {
-        return user.getTenant().getId();
+        return tenantId;
+    }
+
+    public String getTenantCode() {
+        return tenantCode;
     }
 
     public UUID getUserId() {
