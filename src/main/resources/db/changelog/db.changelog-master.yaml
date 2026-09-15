@@ -32,3 +32,21 @@ databaseChangeLog:
   - include:
       file: migrations/V011__create_payments.yaml
       relativeToChangelogFile: true
+  - include:
+      file: migrations/V012__create_aircraft.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/V013__create_aircraft_seat_definitions.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/V014__add_aircraft_to_flights.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/V015__create_seats.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/V016__add_seat_to_tickets.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/V017__add_phone_to_passengers.yaml
+      relativeToChangelogFile: true
